@@ -27,11 +27,11 @@ object ScalaJSExample {
                   .asInstanceOf[dom.CanvasRenderingContext2D]
   var player = Paddle(Point(dom.innerWidth.toInt/2, dom.innerHeight.toInt/2),20,200)
 
-  var ball = Ball(Point(30, dom.innerHeight.toInt/2),Point(1,1),20,20)
+  var ball = Ball(Point(30, dom.innerHeight.toInt/2),Point(1,0),20,20)
 
   var death: Option[(String, Int)] = None
   def collision(a:Paddle, b:Ball):Boolean = {
-    if(((a.pos.x + a.w/2) - (b.pos.x + b.w/2) <= 0 ) && (b.pos.y > (a.pos.y - a.h/2) ) && (b.pos.y < (a.pos.y + a.h/2))) {
+    if((Math.abs(a.pos.x - b.pos.x) <= ( a.w/2 + b.w/2)) && (b.pos.y > (a.pos.y - a.h/2) ) && (b.pos.y < (a.pos.y + a.h/2))) {
       true 
     } else false
   }
@@ -43,7 +43,8 @@ object ScalaJSExample {
     // doing
     if(ball.pos.y <= 0) death = Some(("You Lost, Bitch.",100))
     if(collision(player,ball)) {
-      ball.pos = ball.pos + Point(-2*ball.vel.x,ball.vel.y)
+      ball.vel = Point(-1.5*ball.vel.x,ball.vel.y)
+      ball.pos = ball.pos + ball.vel
     } else {
       ball.pos = ball.pos + ball.vel
     }
