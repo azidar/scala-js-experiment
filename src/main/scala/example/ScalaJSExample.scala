@@ -73,6 +73,20 @@ object ScalaJSExample {
       death = Some((s"You lasted $deltaT seconds", 100))
       balls = balls.filter(e => (e.pos - player).length > 20)
     }
+    
+    //update player based on keyboard input
+    
+    //player1 uses arrow keys
+    if (keysDown(38)) player += Point(0, -2)//up
+    if (keysDown(37)) player += Point(-2, 0)//let
+    if (keysDown(39)) player += Point(2, 0)//right
+    if (keysDown(40)) player += Point(0, 2)//down
+
+    //player2 uses WASD keys
+    if (keysDown(87)) player += Point(0, -2)//up(W)
+    if (keysDown(65)) player += Point(-2, 0)//left(A)
+    if (keysDown(68)) player += Point(2, 0)//right(D)
+    if (keysDown(83)) player += Point(0, 2)//down(S)
   }
   */
   def deltaT = ((js.Date.now() - startTime) / 1000).toInt
@@ -106,6 +120,9 @@ object ScalaJSExample {
         }
     }
   }
+
+  val keysDown = collection.mutable.Set.empty[Int]
+
   @JSExport
   def main(): Unit = {
     dom.console.log("main")
@@ -114,6 +131,13 @@ object ScalaJSExample {
       player = Paddle(Point(e.clientX.toInt, e.clientY.toInt),20,200)
       (): js.Any
     }
+    dom.onkeydown = {(e: dom.KeyboardEvent) =>
+      keysDown.add(e.keyCode.toInt)
+    }
+    dom.onkeyup = {(e: dom.KeyboardEvent) =>
+      keysDown.remove(e.keyCode.toInt)
+    }
+ 
     dom.setInterval(() => {run(); draw()}, 20)
   }
 }
