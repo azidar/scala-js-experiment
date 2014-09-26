@@ -12,7 +12,9 @@ case class Point(x: Double, y: Double){
   def length = Math.sqrt(x * x + y * y)
 }
 
-class Enemy(var pos: Point, var vel: Point)
+case class Ball(var pos: Point, var vel: Point, val w:Int, val h:Int)
+case class Paddle(var pos: Point, val w:Int, val h:Int)
+
 @JSExport
 object ScalaJSExample {
 
@@ -23,42 +25,56 @@ object ScalaJSExample {
                   .asInstanceOf[dom.HTMLCanvasElement]
   val ctx = canvas.getContext("2d")
                   .asInstanceOf[dom.CanvasRenderingContext2D]
-  var player = Point(dom.innerWidth.toInt/2, dom.innerHeight.toInt/2)
+  var player = Paddle(Point(dom.innerWidth.toInt/2, dom.innerHeight.toInt/2),20,200)
 
-  var enemies = Seq.empty[Enemy]
+  var ball = Ball(Point(30, dom.innerHeight.toInt/2),Point(1,1),20,20)
 
   var death: Option[(String, Int)] = None
+  def collision(a:Paddle, b:Ball):Boolean = {
+    if(((a.pos.x + a.w/2) - (b.pos.x + b.w/2) <= 0 ) && (b.pos.y > (a.pos.y - a.h/2) ) && (b.pos.y < (a.pos.y + a.h/2))) {
+      true 
+    } else false
+  }
   def run() = {
 
     canvas.height = dom.innerHeight
     canvas.width = dom.innerWidth
 
     // doing
+    if(ball.pos.y <= 0) death = Some(("You Lost, Bitch.",100))
+    if(collision(player,ball)) {
+      ball.pos = ball.pos + Point(-2*ball.vel.x,ball.vel.y)
+    } else {
+      ball.pos = ball.pos + ball.vel
+    }
+  }
 
-    enemies = enemies.filter(e =>
+/*
+    balls = balls.filter(e =>
       e.pos.x >= 0 && e.pos.x <= canvas.width &&
       e.pos.y >= 0 && e.pos.y <= canvas.height
     )
 
-    def randSpeed = Random.nextInt(5) - 3
-    enemies = enemies ++ Seq.fill(20 - enemies.length)(
-      new Enemy(
+    //def randSpeed = Random.nextInt(5) - 3
+    balls = balls ++ Seq.fill(20 - balls.length)(
+      new Ball(
         Point(Random.nextInt(canvas.width.toInt), 0),
         Point(randSpeed, randSpeed)
       )
     )
 
-    for(enemy <- enemies){
-      enemy.pos = enemy.pos + enemy.vel
-      val delta = player - enemy.pos
-      enemy.vel = enemy.vel + delta / delta.length / 100
+    for(ball <- balls){
+      ball.pos = ball.pos + ball.vel
+      val delta = player - ball.pos
+      ball.vel = ball.vel + delta / delta.length / 100
     }
 
-    if(enemies.exists(e => (e.pos - player).length < 20)){
+    if(balls.exists(e => (e.pos - player).length < 20)){
       death = Some((s"You lasted $deltaT seconds", 100))
-      enemies = enemies.filter(e => (e.pos - player).length > 20)
+      balls = balls.filter(e => (e.pos - player).length > 20)
     }
   }
+  */
   def deltaT = ((js.Date.now() - startTime) / 1000).toInt
 
   def draw() = {
@@ -70,13 +86,11 @@ object ScalaJSExample {
       case None =>
 
         ctx.fillStyle = "white"
-        ctx.fillRect(player.x - 10, player.y - 10, 20, 20)
-        ctx.fillText("player", player.x - 15, player.y - 30)
+        ctx.fillRect(player.pos.x - 10, player.pos.y - 100, 20, 200)
+        ctx.fillText("player1", player.pos.x - 15, player.pos.y - 30)
 
         ctx.fillStyle = "red"
-        for (enemy <- enemies){
-          ctx.fillRect(enemy.pos.x - 10, enemy.pos.y - 10, 20, 20)
-        }
+        ctx.fillRect(ball.pos.x - 10, ball.pos.y - 10, 20, 20)
 
         ctx.fillStyle = "white"
 
@@ -97,7 +111,7 @@ object ScalaJSExample {
     dom.console.log("main")
 
     dom.document.onmousemove = { (e: dom.MouseEvent) =>
-      player = Point(e.clientX.toInt, e.clientY.toInt)
+      player = Paddle(Point(e.clientX.toInt, e.clientY.toInt),20,200)
       (): js.Any
     }
     dom.setInterval(() => {run(); draw()}, 20)
