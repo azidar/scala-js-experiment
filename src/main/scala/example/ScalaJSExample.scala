@@ -60,10 +60,18 @@ object ScalaJSExample {
     }
     
     //update player based on keyboard input
-    if (keysDown(38)) player += Point(0, -2)
-    if (keysDown(37)) player += Point(-2, 0)
-    if (keysDown(39)) player += Point(2, 0)
-    if (keysDown(40)) player += Point(0, 2)
+    
+    //player1 uses arrow keys
+    if (keysDown(38)) player += Point(0, -2)//up
+    if (keysDown(37)) player += Point(-2, 0)//let
+    if (keysDown(39)) player += Point(2, 0)//right
+    if (keysDown(40)) player += Point(0, 2)//down
+
+    //player2 uses WASD keys
+    if (keysDown(87)) player += Point(0, -2)//up(W)
+    if (keysDown(65)) player += Point(-2, 0)//left(A)
+    if (keysDown(68)) player += Point(2, 0)//right(D)
+    if (keysDown(83)) player += Point(0, 2)//down(S)
   }
   def deltaT = ((js.Date.now() - startTime) / 1000).toInt
 
