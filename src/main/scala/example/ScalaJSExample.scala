@@ -25,7 +25,8 @@ object ScalaJSExample {
                   .asInstanceOf[dom.HTMLCanvasElement]
   val ctx = canvas.getContext("2d")
                   .asInstanceOf[dom.CanvasRenderingContext2D]
-  var player = Paddle(Point(dom.innerWidth.toInt/2, dom.innerHeight.toInt/2),20,200)
+  var player  = Paddle(Point(dom.innerWidth.toInt/4, dom.innerHeight.toInt/2),20,200)
+  var player2 = Paddle(Point(dom.innerWidth.toInt*3/4, dom.innerHeight.toInt/2),20,200)
 
   var ball = Ball(Point(30, dom.innerHeight.toInt/2),Point(1,1),20,20)
 
@@ -44,6 +45,8 @@ object ScalaJSExample {
     if(ball.pos.y <= 0) death = Some(("You Lost, Bitch.",100))
     if(collision(player,ball)) {
       ball.pos = ball.pos + Point(-2*ball.vel.x,ball.vel.y)
+    } else if(collision(player2,ball)) {
+      ball.pos = ball.pos + Point(-2*ball.vel.x,ball.vel.y)
     } else {
       ball.pos = ball.pos + ball.vel
     }
@@ -56,10 +59,10 @@ object ScalaJSExample {
     if (keysDown(40)) player.pos += Point(0, 2)//down
 
     //player2 uses WASD keys
-    if (keysDown(87)) player.pos += Point(0, -2)//up(W)
-    if (keysDown(65)) player.pos += Point(-2, 0)//left(A)
-    if (keysDown(68)) player.pos += Point(2, 0)//right(D)
-    if (keysDown(83)) player.pos += Point(0, 2)//down(S)
+    if (keysDown(87)) player2.pos += Point(0, -2)//up(W)
+    if (keysDown(65)) player2.pos += Point(-2, 0)//left(A)
+    if (keysDown(68)) player2.pos += Point(2, 0)//right(D)
+    if (keysDown(83)) player2.pos += Point(0, 2)//down(S)
   }
 
 /*
@@ -102,6 +105,10 @@ object ScalaJSExample {
         ctx.fillStyle = "white"
         ctx.fillRect(player.pos.x - 10, player.pos.y - 100, 20, 200)
         ctx.fillText("player1", player.pos.x - 15, player.pos.y - 30)
+
+        ctx.fillStyle = "green"
+        ctx.fillRect(player2.pos.x - 10, player2.pos.y - 100, 20, 200)
+        ctx.fillText("player2", player2.pos.x - 15, player2.pos.y - 30)
 
         ctx.fillStyle = "red"
         ctx.fillRect(ball.pos.x - 10, ball.pos.y - 10, 20, 20)
