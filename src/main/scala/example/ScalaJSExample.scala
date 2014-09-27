@@ -45,14 +45,15 @@ object ScalaJSExample {
     if(ball.pos.x <= 0) death = Some(("Player 2 Wins!",100))
     if(ball.pos.x >= dom.innerWidth.toInt) death = Some(("Player 1 Wins!",100))
     if(ball.pos.y - ball.w/2 <= 0) ball.vel = Point(ball.vel.x,-1*ball.vel.y)
-    if(ball.pos.y - ball.w/2 >= dom.innerHeight) ball.vel = Point(ball.vel.x,-1*ball.vel.y)
+    if(ball.pos.y + ball.w/2 >= dom.innerHeight) ball.vel = Point(ball.vel.x,-1*ball.vel.y)
 
-    if(collision(player,ball)) {
+    val nextBall = Ball(ball.pos + ball.vel,ball.vel,ball.w,ball.h)
+    if(collision(player,nextBall)) {
       ball.vel = Point(-1*ball.vel.x, ball.vel.y + 0.2 * player.vel.y)
-      ball.pos = ball.pos + ball.vel
-    } else if(collision(player2,ball)) {
+      ball.pos = ball.pos + player.vel
+    } else if(collision(player2,nextBall)) {
       ball.vel = Point(-1*ball.vel.x, ball.vel.y + 0.2 * player2.vel.y)
-      ball.pos = ball.pos + ball.vel
+      ball.pos = ball.pos + player2.vel
     } else {
       ball.pos = ball.pos + ball.vel
     }
@@ -61,20 +62,20 @@ object ScalaJSExample {
     //player1 uses arrow keys
     player.vel = Point(0, 0)
     if (keysDown(38)) {
-      player.pos += Point(0, -4)//up
-      player.vel = Point(0, -4)
+      player.pos += Point(0, -6)//up
+      player.vel = Point(0, -6)
     }
     if (keysDown(37)) {
-      player.pos += Point(-4, 0)//let
-      player.vel = Point(-4,0)
+      player.pos += Point(-6, 0)//let
+      player.vel = Point(-6,0)
     }
     if (keysDown(39)) {
-      player.pos += Point(4, 0)//right
-      player.vel = Point(4, 0)
+      player.pos += Point(6, 0)//right
+      player.vel = Point(6, 0)
     }
     if (keysDown(40)) {
-      player.pos += Point(0, 4)//down
-      player.vel = Point(0, 4)
+      player.pos += Point(0, 6)//down
+      player.vel = Point(0, 6)
     }
 
     //player2 uses WASD keys
@@ -86,20 +87,20 @@ object ScalaJSExample {
     */
     player2.vel = Point(0, 0)
     if (keysDown(87)) {
-      player2.pos += Point(0, -4)//up
-      player2.vel = Point(0, -4)
+      player2.pos += Point(0, -6)//up
+      player2.vel = Point(0, -6)
     }
     if (keysDown(65)) {
-      player2.pos += Point(-4, 0)//let
-      player2.vel = Point(-4,0)
+      player2.pos += Point(-6, 0)//let
+      player2.vel = Point(-6,0)
     }
     if (keysDown(68)) {
-      player2.pos += Point(4, 0)//right
-      player2.vel = Point(4, 0)
+      player2.pos += Point(6, 0)//right
+      player2.vel = Point(6, 0)
     }
     if (keysDown(83)) {
-      player2.pos += Point(0, 4)//down
-      player2.vel = Point(0, 4)
+      player2.pos += Point(0, 6)//down
+      player2.vel = Point(0, 7)
     }
   }
 
