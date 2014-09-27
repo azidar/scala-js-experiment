@@ -13,7 +13,7 @@ case class Point(x: Double, y: Double){
 }
 
 case class Ball(var pos: Point, var vel: Point, val w:Int, val h:Int)
-case class Paddle(var pos: Point, val w:Int, val h:Int)
+case class Paddle(var pos: Point, var vel:Point, val w:Int, val h:Int)
 
 @JSExport
 object ScalaJSExample {
@@ -25,9 +25,10 @@ object ScalaJSExample {
                   .asInstanceOf[dom.HTMLCanvasElement]
   val ctx = canvas.getContext("2d")
                   .asInstanceOf[dom.CanvasRenderingContext2D]
-  var player = Paddle(Point(dom.innerWidth.toInt/2, dom.innerHeight.toInt/2),20,200)
+  var player  = Paddle(Point(dom.innerWidth.toInt*3/4, dom.innerHeight.toInt/2),Point(0,0),20,200)
+  var player2 = Paddle(Point(dom.innerWidth.toInt/4, dom.innerHeight.toInt/2),Point(0,0),20,200)
 
-  var ball = Ball(Point(30, dom.innerHeight.toInt/2),Point(1,0),20,20)
+  var ball = Ball(Point(dom.innerWidth/2, dom.innerHeight.toInt/2),Point(4,0),20,20)
 
   var death: Option[(String, Int)] = None
   def collision(a:Paddle, b:Ball):Boolean = {
@@ -41,9 +42,16 @@ object ScalaJSExample {
     canvas.width = dom.innerWidth
 
     // doing
-    if(ball.pos.y <= 0) death = Some(("You Lost, Bitch.",100))
+    if(ball.pos.x <= 0) death = Some(("Player 2 Wins!",100))
+    if(ball.pos.x >= dom.innerWidth.toInt) death = Some(("Player 1 Wins!",100))
+    if(ball.pos.y - ball.w/2 <= 0) ball.vel = Point(ball.vel.x,-1*ball.vel.y)
+    if(ball.pos.y - ball.w/2 >= dom.innerHeight) ball.vel = Point(ball.vel.x,-1*ball.vel.y)
+
     if(collision(player,ball)) {
-      ball.vel = Point(-1.5*ball.vel.x,ball.vel.y)
+      ball.vel = Point(-1*ball.vel.x, ball.vel.y + 0.2 * player.vel.y)
+      ball.pos = ball.pos + ball.vel
+    } else if(collision(player2,ball)) {
+      ball.vel = Point(-1*ball.vel.x, ball.vel.y + 0.2 * player2.vel.y)
       ball.pos = ball.pos + ball.vel
     } else {
       ball.pos = ball.pos + ball.vel
@@ -51,16 +59,48 @@ object ScalaJSExample {
     //update player based on keyboard input
     
     //player1 uses arrow keys
-    if (keysDown(38)) player.pos += Point(0, -2)//up
-    if (keysDown(37)) player.pos += Point(-2, 0)//let
-    if (keysDown(39)) player.pos += Point(2, 0)//right
-    if (keysDown(40)) player.pos += Point(0, 2)//down
+    player.vel = Point(0, 0)
+    if (keysDown(38)) {
+      player.pos += Point(0, -4)//up
+      player.vel = Point(0, -4)
+    }
+    if (keysDown(37)) {
+      player.pos += Point(-4, 0)//let
+      player.vel = Point(-4,0)
+    }
+    if (keysDown(39)) {
+      player.pos += Point(4, 0)//right
+      player.vel = Point(4, 0)
+    }
+    if (keysDown(40)) {
+      player.pos += Point(0, 4)//down
+      player.vel = Point(0, 4)
+    }
 
     //player2 uses WASD keys
-    if (keysDown(87)) player.pos += Point(0, -2)//up(W)
-    if (keysDown(65)) player.pos += Point(-2, 0)//left(A)
-    if (keysDown(68)) player.pos += Point(2, 0)//right(D)
-    if (keysDown(83)) player.pos += Point(0, 2)//down(S)
+    /*
+    if (keysDown(87)) player2.pos += Point(0, -2)//up(W)
+    if (keysDown(65)) player2.pos += Point(-2, 0)//left(A)
+    if (keysDown(68)) player2.pos += Point(2, 0)//right(D)
+    if (keysDown(83)) player2.pos += Point(0, 2)//down(S)
+    */
+    player2.vel = Point(0, 0)
+    if (keysDown(87)) {
+      player2.pos += Point(0, -4)//up
+      player2.vel = Point(0, -4)
+    }
+    if (keysDown(65)) {
+      player2.pos += Point(-4, 0)//let
+      player2.vel = Point(-4,0)
+    }
+    if (keysDown(68)) {
+      player2.pos += Point(4, 0)//right
+      player2.vel = Point(4, 0)
+    }
+    if (keysDown(83)) {
+      player2.pos += Point(0, 4)//down
+      player2.vel = Point(0, 4)
+    }
   }
 
 /*
@@ -104,6 +144,10 @@ object ScalaJSExample {
         ctx.fillRect(player.pos.x - 10, player.pos.y - 100, 20, 200)
         ctx.fillText("player1", player.pos.x - 15, player.pos.y - 30)
 
+        ctx.fillStyle = "green"
+        ctx.fillRect(player2.pos.x - 10, player2.pos.y - 100, 20, 200)
+        ctx.fillText("player2", player2.pos.x - 15, player2.pos.y - 30)
+
         ctx.fillStyle = "red"
         ctx.fillRect(ball.pos.x - 10, ball.pos.y - 10, 20, 20)
 
@@ -128,10 +172,12 @@ object ScalaJSExample {
   def main(): Unit = {
     dom.console.log("main")
 
+/*
     dom.document.onmousemove = { (e: dom.MouseEvent) =>
-      player = Paddle(Point(e.clientX.toInt, e.clientY.toInt),20,200)
+      player = Paddle(Point(e.clientX.toInt, e.clientY.toInt),Point(0,0),20,200)
       (): js.Any
     }
+    */
     dom.onkeydown = {(e: dom.KeyboardEvent) =>
       keysDown.add(e.keyCode.toInt)
     }
